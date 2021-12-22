@@ -8,7 +8,6 @@ pipeline {
         stage('Build') { 
             steps {
                 sh 'mvn -B -DskipTests clean package' 
-				setBuildStatus('Build', e.take(140), "FAILURE");
             }
         }
 		stage('Test') {
@@ -22,14 +21,21 @@ pipeline {
             }
         }
     }
+	post {
+		success {
+			setBuildStatus("Build succeeded", "SUCCESS");
+		}
+		failure {
+			setBuildStatus("Build failed", "FAILURE");
+		}
+	}
 }
 
-// Updated to account for context
 void setBuildStatus(String context, String message, String state) {
   context = context ?: "ci/jenkins/build-status"
   step([
       $class: "GitHubCommitStatusSetter",
-      reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/my-org/my-repo"],
+      reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/yknaveentel/test"],
       contextSource: [$class: "ManuallyEnteredCommitContextSource", context: context],
       errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
       statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
