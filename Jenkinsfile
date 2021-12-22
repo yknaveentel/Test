@@ -31,12 +31,11 @@ pipeline {
 	}
 }
 
-void setBuildStatus(String context, String message, String state) {
-  context = context ?: "ci/jenkins/build-status"
+void setBuildStatus(String message, String state) {
   step([
       $class: "GitHubCommitStatusSetter",
       reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/yknaveentel/test"],
-      contextSource: [$class: "ManuallyEnteredCommitContextSource", context: context],
+      contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
       errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
       statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
   ]);
